@@ -1,15 +1,44 @@
 import logging
+from abc import ABC, abstractmethod
 import os
-
 from openai import OpenAI
-
+from sentence_transformers import SentenceTransformer
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 import getpass
-from abc import ABC, abstractmethod
-
 import torch
-from tenacity import retry, stop_after_attempt, wait_random_exponential
 from transformers import T5ForConditionalGeneration, T5Tokenizer
+
+logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
+
+# embedding model
+class BaseEmbeddingModel(ABC):
+    @abstractmethod
+    def create_embedding(self, text):
+        pass
+
+
+class OpenAIEmbeddingModel(BaseEmbeddingModel):
+    def __init__(self, model="text-embedding-ada-002"):
+        self.client = OpenAI()
+        self.model = model
+
+    @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+    def create_embedding(self, text):
+        text = text.replace("\n", " ")
+        return (
+            self.client.embeddings.create(input=[text], model=self.model)
+            .data[0]
+            .embedding
+        )
+
+
+class SBertEmbeddingModel(BaseEmbeddingModel):
+    def __init__(self, model_name="sentence-transformers/multi-qa-mpnet-base-cos-v1"):
+        self.model = SentenceTransformer(model_name)
+
+    def create_embedding(self, text):
+        return self.model.encode(text)
 
 
 class BaseQAModel(ABC):
@@ -17,7 +46,7 @@ class BaseQAModel(ABC):
     def answer_question(self, context, question):
         pass
 
-
+# QA model
 class GPT3QAModel(BaseQAModel):
     def __init__(self, model="text-davinci-003"):
         """
@@ -183,3 +212,69 @@ class UnifiedQAModel(BaseQAModel):
         input_string = question + " \\n " + context
         output = self.run_model(input_string)
         return output[0]
+
+# summarize model
+class BaseSummarizationModel(ABC):
+    @abstractmethod
+    def summarize(self, context, max_tokens=150):
+        pass
+
+
+class GPT3TurboSummarizationModel(BaseSummarizationModel):
+    def __init__(self, model="gpt-3.5-turbo"):
+
+        self.model = model
+
+    @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+    def summarize(self, context, max_tokens=500, stop_sequence=None):
+
+        try:
+            client = OpenAI()
+
+            response = client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {
+                        "role": "user",
+                        "content": f"Write a summary of the following, including as many key details as possible: {context}:",
+                    },
+                ],
+                max_tokens=max_tokens,
+            )
+
+            return response.choices[0].message.content
+
+        except Exception as e:
+            print(e)
+            return e
+
+
+class GPT3SummarizationModel(BaseSummarizationModel):
+    def __init__(self, model="text-davinci-003"):
+
+        self.model = model
+
+    @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+    def summarize(self, context, max_tokens=500, stop_sequence=None):
+
+        try:
+            client = OpenAI()
+
+            response = client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {
+                        "role": "user",
+                        "content": f"Write a summary of the following, including as many key details as possible: {context}:",
+                    },
+                ],
+                max_tokens=max_tokens,
+            )
+
+            return response.choices[0].message.content
+
+        except Exception as e:
+            print(e)
+            return e

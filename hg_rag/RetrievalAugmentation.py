@@ -2,9 +2,9 @@ import logging
 import pickle
 
 from .cluster_tree_builder import ClusterTreeBuilder, ClusterTreeConfig
-from .EmbeddingModels import BaseEmbeddingModel
-from .QAModels import BaseQAModel, GPT3TurboQAModel
-from .SummarizationModels import BaseSummarizationModel
+from .All_Models import BaseEmbeddingModel
+from .All_Models import BaseQAModel, GPT3TurboQAModel
+from .All_Models import BaseSummarizationModel
 from .tree_retriever import TreeRetriever, TreeRetrieverConfig
 from .tree_structures import Node, Tree
 

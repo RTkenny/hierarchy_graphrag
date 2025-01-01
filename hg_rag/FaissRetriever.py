@@ -6,7 +6,7 @@ import numpy as np
 import tiktoken
 from tqdm import tqdm
 
-from .EmbeddingModels import BaseEmbeddingModel, OpenAIEmbeddingModel
+from .All_Models import BaseEmbeddingModel, OpenAIEmbeddingModel
 from .Retrievers import BaseRetriever
 from .utils import split_text
 

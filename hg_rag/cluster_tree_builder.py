@@ -8,8 +8,8 @@ from threading import Lock
 from typing import Dict, List, Set, Tuple, Optional
 from abc import abstractclassmethod
 from .cluster_utils import ClusteringAlgorithm, RAPTOR_Clustering
-from .EmbeddingModels import BaseEmbeddingModel, OpenAIEmbeddingModel
-from .SummarizationModels import (BaseSummarizationModel,
+from .All_Models import BaseEmbeddingModel, OpenAIEmbeddingModel
+from .All_Models import (BaseSummarizationModel,
                                   GPT3TurboSummarizationModel)
 from .tree_structures import Node, Tree
 from .utils import (distances_from_embeddings, get_children, get_embeddings,

@@ -7,7 +7,7 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from .Retrievers import BaseRetriever
 
-from .EmbeddingModels import BaseEmbeddingModel, OpenAIEmbeddingModel
+from .All_Models import BaseEmbeddingModel, OpenAIEmbeddingModel
 from .tree_structures import Node, Tree
 from .utils import (distances_from_embeddings, get_children, get_embeddings,
                     get_node_list, get_text,
