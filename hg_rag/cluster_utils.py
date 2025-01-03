@@ -28,6 +28,12 @@ def global_cluster_embeddings(
 ) -> np.ndarray:
     if n_neighbors is None:
         n_neighbors = int((len(embeddings) - 1) ** 0.5)
+        if n_neighbors<2:
+            n_neighbors = 2
+
+    if dim == 0:
+        dim = 10
+        print('dim been set to 0')
     reduced_embeddings = umap.UMAP(
         n_neighbors=n_neighbors, n_components=dim, metric=metric
     ).fit_transform(embeddings)

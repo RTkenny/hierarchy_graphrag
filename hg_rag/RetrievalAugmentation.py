@@ -1,10 +1,7 @@
 import logging
 import pickle
-
 from .cluster_tree_builder import ClusterTreeBuilder, ClusterTreeConfig
-from .All_Models import BaseEmbeddingModel
-from .All_Models import BaseQAModel, GPT3TurboQAModel
-from .All_Models import BaseSummarizationModel
+from .All_Models import BaseSummarizationModel, BaseQAModel, GPT4QAModel, BaseEmbeddingModel
 from .tree_retriever import TreeRetriever, TreeRetrieverConfig
 from .tree_structures import Node, Tree
 
@@ -128,7 +125,7 @@ class RetrievalAugmentationConfig:
         # Assign the created configurations to the instance
         self.tree_builder_config = tree_builder_config
         self.tree_retriever_config = tree_retriever_config
-        self.qa_model = qa_model or GPT3TurboQAModel()
+        self.qa_model = qa_model or GPT4QAModel()
         self.tree_builder_type = tree_builder_type
 
     def log_config(self):
@@ -263,10 +260,12 @@ class RetrievalAugmentation:
     def answer_question(
         self,
         question,
+        prompt_template,
         top_k: int = 10,
         start_layer: int = None,
         num_layers: int = None,
         max_tokens: int = 3500,
+        gen_max_tokens: int = 150,
         retrieve_mode: str = "collapse_tree",
         return_layer_information: bool = False,
     ):
@@ -291,7 +290,7 @@ class RetrievalAugmentation:
             question, start_layer, num_layers, top_k, max_tokens, retrieve_mode, return_layer_information
         )
 
-        answer = self.qa_model.answer_question(context, question)
+        answer = self.qa_model.answer_question(context, question, prompt_template=prompt_template, gen_max_tokens=gen_max_tokens)
 
         return answer
 

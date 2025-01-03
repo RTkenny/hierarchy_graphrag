@@ -378,9 +378,8 @@ class TreeRetriever(BaseRetriever):
             )
 
         self.render_tree()
+        layer_information = []
         if return_layer_information:
-
-            layer_information = []
 
             for node in selected_nodes:
                 layer_information.append(
@@ -393,7 +392,7 @@ class TreeRetriever(BaseRetriever):
 
             return context, layer_information
 
-        return context
+        return context, layer_information
 
     def render_tree(self):
         nodes = list(self.tree.all_nodes.values())
